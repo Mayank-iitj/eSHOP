@@ -1,4 +1,4 @@
-// Product Database with Valid URLs
+// Product Database with Valid Amazon URLs
 const products = [
   {
     id: 1,
@@ -185,17 +185,48 @@ document.addEventListener('DOMContentLoaded', function() {
   loadProducts();
   loadAnalytics();
   startRealTimeUpdates();
+  initializeAnimations();
 });
+
+// Initialize Animations
+function initializeAnimations() {
+  // Animate elements on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  // Observe all cards
+  document.querySelectorAll('.product-card, .analytics-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(card);
+  });
+}
 
 // Load and Display Products
 function loadProducts() {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '';
   
-  currentProducts.forEach(product => {
+  currentProducts.forEach((product, index) => {
     const card = createProductCard(product);
+    card.style.animationDelay = `${index * 0.1}s`;
     grid.appendChild(card);
   });
+
+  // Re-initialize animations for new products
+  setTimeout(initializeAnimations, 100);
 }
 
 // Create Product Card
@@ -227,12 +258,15 @@ function createProductCard(product) {
           `<span class="original-price">₹${formatPrice(product.originalPrice)}</span>` : ''}
       </div>
       <div class="product-actions">
-        <a href="${product.url}" target="_blank" class="action-btn primary" onclick="trackClick(event, ${product.id})">
+        <a href="${product.url}" target="_blank" rel="noopener noreferrer" class="action-btn primary" onclick="trackClick(event, ${product.id})">
           <i class="fas fa-external-link-alt"></i>
           <span>View Product</span>
         </a>
-        <button class="action-btn" onclick="addToWishlist(event, ${product.id})">
+        <button class="action-btn" onclick="addToWishlist(event, ${product.id})" title="Add to Wishlist">
           <i class="far fa-heart"></i>
+        </button>
+        <button class="action-btn" onclick="shareProduct(event, ${product.id})" title="Share Product">
+          <i class="fas fa-share-alt"></i>
         </button>
       </div>
     </div>
@@ -300,7 +334,7 @@ function sortProducts() {
   }
   
   loadProducts();
-  showNotification(`Sorted by ${sortBy}`, 'success');
+  showNotification(`Sorted by ${sortBy.replace('-', ' ')}`, 'success');
 }
 
 // Load More Products (Shuffle existing)
@@ -344,16 +378,47 @@ function addToWishlist(event, productId) {
   if (icon.classList.contains('far')) {
     icon.classList.remove('far');
     icon.classList.add('fas');
-    btn.style.background = '#ef4444';
+    btn.style.background = '#1db954';
     btn.style.color = 'white';
+    btn.style.borderColor = '#1db954';
     showNotification('Added to wishlist!', 'success');
   } else {
     icon.classList.remove('fas');
     icon.classList.add('far');
     btn.style.background = '';
     btn.style.color = '';
+    btn.style.borderColor = '';
     showNotification('Removed from wishlist', 'warning');
   }
+}
+
+// Share Product
+function shareProduct(event, productId) {
+  event.stopPropagation();
+  const product = products.find(p => p.id === productId);
+  
+  if (navigator.share) {
+    navigator.share({
+      title: product.title,
+      text: `Check out this ${product.category.toLowerCase()} on ${product.marketplace}!`,
+      url: product.url
+    }).then(() => {
+      showNotification('Product shared successfully!', 'success');
+    }).catch(() => {
+      copyToClipboard(product.url);
+    });
+  } else {
+    copyToClipboard(product.url);
+  }
+}
+
+// Copy to Clipboard
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showNotification('Link copied to clipboard!', 'success');
+  }).catch(() => {
+    showNotification('Failed to copy link', 'error');
+  });
 }
 
 // Load Analytics
@@ -385,7 +450,25 @@ function loadAnalytics() {
       <div class="analytics-value">${analytics.topCategory}</div>
       <div class="analytics-desc">Most popular category</div>
     </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">⚡</div>
+      <div class="analytics-title">Real-time</div>
+      <div class="analytics-value">Live</div>
+      <div class="analytics-desc">Updates every 10 seconds</div>
+    </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">🌟</div>
+      <div class="analytics-title">Avg Rating</div>
+      <div class="analytics-value">${calculateAverageRating()}</div>
+      <div class="analytics-desc">Average product rating</div>
+    </div>
   `;
+}
+
+// Calculate Average Rating
+function calculateAverageRating() {
+  const total = products.reduce((sum, product) => sum + product.rating, 0);
+  return (total / products.length).toFixed(1);
 }
 
 // Update Analytics
@@ -397,7 +480,7 @@ function updateAnalytics() {
 function startRealTimeUpdates() {
   setInterval(() => {
     // Simulate real-time data updates
-    analytics.totalViews += Math.floor(Math.random() * 5);
+    analytics.totalViews += Math.floor(Math.random() * 3) + 1;
     analytics.totalClicks += Math.floor(Math.random() * 2);
     analytics.conversionRate = ((analytics.totalClicks / analytics.totalViews) * 100).toFixed(1);
     updateAnalytics();
@@ -407,8 +490,18 @@ function startRealTimeUpdates() {
 // Scroll to Products
 function scrollToProducts() {
   document.getElementById('products').scrollIntoView({ 
-    behavior: 'smooth' 
+    behavior: 'smooth',
+    block: 'start'
   });
+}
+
+// Toggle Mobile Navigation
+function toggleMobileNav() {
+  const nav = document.querySelector('.nav');
+  const toggle = document.querySelector('.nav-toggle');
+  
+  nav.classList.toggle('active');
+  toggle.classList.toggle('active');
 }
 
 // Show Notification
@@ -417,16 +510,21 @@ function showNotification(message, type = 'success') {
   notification.className = `notification ${type}`;
   notification.textContent = message;
   
-  document.getElementById('notifications').appendChild(notification);
+  const container = document.getElementById('notifications');
+  container.appendChild(notification);
   
+  // Trigger animation
   setTimeout(() => {
     notification.classList.add('show');
   }, 100);
   
+  // Remove notification
   setTimeout(() => {
     notification.classList.remove('show');
     setTimeout(() => {
-      notification.remove();
+      if (notification.parentNode) {
+        notification.remove();
+      }
     }, 300);
   }, 3000);
 }
@@ -444,3 +542,37 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     }
   });
 });
+
+// Add loading states for better UX
+function addLoadingState(element) {
+  element.style.opacity = '0.7';
+  element.style.pointerEvents = 'none';
+}
+
+function removeLoadingState(element) {
+  element.style.opacity = '1';
+  element.style.pointerEvents = 'auto';
+}
+
+// Performance optimization: Debounce scroll events
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Add scroll-based animations
+window.addEventListener('scroll', debounce(() => {
+  const scrolled = window.pageYOffset;
+  const parallax = document.querySelector('.hero');
+  if (parallax) {
+    const speed = scrolled * 0.5;
+    parallax.style.transform = `translateY(${speed}px)`;
+  }
+}, 10));
