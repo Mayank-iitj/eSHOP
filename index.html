@@ -3,175 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-Powered E-Commerce Recommendations</title>
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome -->
+  <title>AI Product Recommendations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Loading Screen -->
-  <div id="loading-screen">
-    <div class="loading-spinner"></div>
-    <p>Loading recommendations...</p>
-  </div>
-
-  <!-- Watermark -->
-  <div class="watermark" tabindex="0">Built by MAYANK SHARMA</div>
-  
-  <!-- Navigation -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <div class="logo" tabindex="0">
-        <i class="fa-solid fa-robot"></i>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <i class="fas fa-robot"></i>
         <span>AI Shop</span>
       </div>
-      <div class="nav-links">
-        <a href="#recommendations" tabindex="0">Recommendations</a>
-        <a href="#analytics" tabindex="0">Analytics</a>
-        <a href="#profile" tabindex="0">Profile</a>
-      </div>
-      <div class="nav-toggle">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+      <nav class="nav">
+        <a href="#home">Home</a>
+        <a href="#products">Products</a>
+        <a href="#analytics">Analytics</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
   <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-container">
+  <section id="home" class="hero">
+    <div class="container">
       <div class="hero-content">
-        <h1 class="hero-title">AI-Powered Product Recommendations</h1>
-        <p class="hero-description">
-          Discover products you'll love with our advanced machine learning algorithms. 
-          Get personalized recommendations from top marketplaces with real-time updates.
-        </p>
-        <div class="hero-features">
-          <div class="feature">
-            <i class="fa-solid fa-brain"></i>
-            <span>Smart AI</span>
-          </div>
-          <div class="feature">
-            <i class="fa-solid fa-clock"></i>
-            <span>Real-time</span>
-          </div>
-          <div class="feature">
-            <i class="fa-solid fa-shield-halved"></i>
-            <span>Secure</span>
-          </div>
-        </div>
-        <a href="#recommendations" class="cta-button">
-          <span>Get Started</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </a>
-      </div>
-      <div class="hero-visual">
-        <div class="floating-card">
-          <i class="fa-solid fa-shopping-cart"></i>
-          <span>Smart Shopping</span>
-        </div>
-        <div class="floating-card">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>Analytics</span>
-        </div>
-        <div class="floating-card">
-          <i class="fa-solid fa-heart"></i>
-          <span>Personalized</span>
-        </div>
+        <h1>AI-Powered Product Recommendations</h1>
+        <p>Discover amazing products with our intelligent recommendation system</p>
+        <button class="cta-btn" onclick="scrollToProducts()">
+          <span>Explore Products</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- Recommendations Section -->
-  <section class="recommendations-section" id="recommendations">
+  <!-- Products Section -->
+  <section id="products" class="products-section">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Recommended For You</h2>
-        <p class="section-subtitle">Curated products based on your preferences and behavior</p>
+        <h2>Recommended Products</h2>
+        <p>Curated selection of top-rated products</p>
       </div>
       
-      <div class="product-grid">
-        <!-- Products will be loaded here dynamically -->
+      <div class="filter-controls">
+        <select id="categoryFilter" onchange="filterProducts()">
+          <option value="all">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Home">Home & Kitchen</option>
+          <option value="Books">Books</option>
+          <option value="Sports">Sports</option>
+        </select>
+        
+        <select id="sortFilter" onchange="sortProducts()">
+          <option value="rating">Sort by Rating</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="discount">Best Discount</option>
+        </select>
       </div>
-      
+
+      <div class="products-grid" id="productsGrid">
+        <!-- Products will be loaded here -->
+      </div>
+
       <div class="load-more">
-        <button class="load-more-btn" onclick="app.loadRecommendations()">
-          <i class="fa-solid fa-refresh"></i>
-          <span>Refresh Recommendations</span>
+        <button class="load-btn" onclick="loadMoreProducts()">
+          <i class="fas fa-refresh"></i>
+          <span>Load More Products</span>
         </button>
       </div>
     </div>
   </section>
 
   <!-- Analytics Section -->
-  <section class="analytics-section" id="analytics">
+  <section id="analytics" class="analytics-section">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Analytics Dashboard</h2>
-        <p class="section-subtitle">Real-time insights into recommendation performance</p>
+        <h2>Analytics Dashboard</h2>
+        <p>Real-time insights and statistics</p>
       </div>
       
-      <div class="analytics-grid">
-        <!-- Analytics cards will be loaded here dynamically -->
-      </div>
-    </div>
-  </section>
-
-  <!-- Profile Section -->
-  <section class="profile-section" id="profile">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Your Profile & Preferences</h2>
-        <p class="section-subtitle">Help us personalize your experience</p>
-      </div>
-      
-      <div class="profile-container">
-        <div class="profile-card">
-          <h3>Shopping Preferences</h3>
-          <form class="profile-form" id="profileForm">
-            <div class="form-group">
-              <label for="onboarding">What are your favorite product categories?</label>
-              <input 
-                id="onboarding" 
-                type="text" 
-                placeholder="e.g. Electronics, Fashion, Books, Sports"
-                required
-              >
-              <small>Separate multiple categories with commas</small>
-            </div>
-            <button type="submit" class="submit-btn">
-              <i class="fa-solid fa-save"></i>
-              <span>Save Preferences</span>
-            </button>
-          </form>
-        </div>
-        
-        <div class="profile-card">
-          <h3>Feedback</h3>
-          <div class="feedback-form">
-            <div class="form-group">
-              <label for="feedback">How are our recommendations?</label>
-              <textarea 
-                id="feedback" 
-                rows="4" 
-                placeholder="Share your thoughts on the recommended products..."
-              ></textarea>
-            </div>
-            <button id="feedbackBtn" class="submit-btn">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span>Submit Feedback</span>
-            </button>
-          </div>
-        </div>
+      <div class="analytics-grid" id="analyticsGrid">
+        <!-- Analytics will be loaded here -->
       </div>
     </div>
   </section>
@@ -182,24 +97,15 @@
       <div class="footer-content">
         <div class="footer-section">
           <h4>AI Shop</h4>
-          <p>Intelligent product recommendations powered by machine learning</p>
+          <p>Intelligent product recommendations powered by AI</p>
         </div>
         <div class="footer-section">
           <h4>Features</h4>
           <ul>
-            <li>Hybrid Recommendations</li>
-            <li>Real-time Updates</li>
-            <li>Multi-marketplace</li>
-            <li>Analytics Dashboard</li>
-          </ul>
-        </div>
-        <div class="footer-section">
-          <h4>Algorithms</h4>
-          <ul>
-            <li>Collaborative Filtering</li>
-            <li>Content-based Filtering</li>
-            <li>Hybrid Approach</li>
-            <li>Trending Analysis</li>
+            <li>Smart Recommendations</li>
+            <li>Real-time Analytics</li>
+            <li>Multiple Categories</li>
+            <li>Best Deals</li>
           </ul>
         </div>
       </div>
@@ -210,24 +116,8 @@
   </footer>
 
   <!-- Notification Container -->
-  <div id="notification-container"></div>
+  <div id="notifications"></div>
 
-  <script src="src/main.js"></script>
-  
-  <script>
-    // Hide loading screen when page is loaded
-    window.addEventListener('load', () => {
-      const loadingScreen = document.getElementById('loading-screen');
-      loadingScreen.style.opacity = '0';
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-      }, 500);
-    });
-
-    // Mobile navigation toggle
-    document.querySelector('.nav-toggle').addEventListener('click', () => {
-      document.querySelector('.nav-links').classList.toggle('active');
-    });
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
